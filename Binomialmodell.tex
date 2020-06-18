@@ -1,0 +1,376 @@
+\chapter{Binomialmodell}
+\label{cha:binomialmodell}
+
+In diesem Kapitel werden wir den Verlauf der zugrundeliegenden Aktie modellieren. Dabei werden wir uns das Prinzip des Binomialbaums zunächst für eine einzelne Periode $\Delta t$ anschauen. Danach werden wir dieses Konzept auf mehrere Perioden übertragen, um eine bessere Darstellung unseres Aktienkurses $S_t$ (das ist der Wert der Aktie zum Zeitpunkt t) zu erhalten. Wir werden anschließend eine Formel herleiten und damit den Wert der Option bestimmen. Als letztes werden wir uns anschauen, ob und gegen welchen Wert der Optionspreis für immer kleinere Schrittweiten $\Delta t$ konvergiert.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Ein-Perioden-Modell}        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{cha:Ein-Perioden-Modell}      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Im Binomialmodell wird angenommen, dass die Kursentwicklung einer Aktie sich gemäß einer binomialverteilten Zufallsvariable verhält. In jedem Zeitschritt kann die Aktie mit einer Wahrscheinlichkeit $q$ um den Faktor $u > 1$ steigen, oder mit der Wahrscheinlichkeit $1-q$ um den Faktor $d < 1$ fallen.
+Für eine einzelne Periode $\Delta t$ ergibt sich folgende Kursentwicklung:
+
+\begin{figure}[htbp!]
+    \begin{tikzpicture}[sloped]
+        \node (z) at (-3,0) [bag] {};
+        % Aktie
+  	    \node (a) at (0,0) [bag] {$S_0$};
+ 	    \node (b) at (3,-1) [bag] {$S^u(\Delta t)$};
+  	    \node (c) at (3,1) [bag] {$S^d(\Delta t)$};
+  	    % Zeichnen der Pfeile
+	    \draw [->] (a) to node [below] {$1-q$} (b);
+  	    \draw [->] (a) to node [above] {$q$} (c);
+	    % Anleihe
+	    % Anlegen der Knoten
+  	    \node (d) at (5.5,0) [bag] {$B(0)$};
+ 	    \node (e) at (8,0) [bag] {$B(\Delta t)$};
+  	    % Zeichnen des Pfeils	
+	    \draw [->] (d) to node [below] {} (e);  
+    \end{tikzpicture}
+    \caption{Entwicklung der Aktie und der Anleihe im Intervall $\left[0,\Delta t\right]$}
+\end{figure}
+
+Zudem nehmen wir an, dass unser Finanzmarkt neben der Aktie nur aus einem risikolosen Anleihe $B(t)$ (engl. Bond), welcher mit Zinssatz $r$ stetig verzinst wird, und einer zu bewertenden Call-Option besteht. Wir wollen uns nun ein Portfolio aus $c_1$ Anteilen der Anleihe und $c_2$ Anteilen der Aktie konstruieren, sodass zu jedem Zeitpunkt $ t \in \left\{0,\Delta t\right\} $ und jedem Zustand gilt:
+\begin{equation*}
+c_1 \cdot B(t) + c_2 \cdot S_t \, = \,C(t) \, = \left(S_t - K \right) ^+ 
+\end{equation*}
+Nachdem sowohl die Aktie, als demnach auch die Option zum Zeitpunkt $\Delta t$ zwei Zustände annehmen kann, erhalten wir folgendes Gleichungssystem:
+\begin{eqnarray*}
+c_1 \cdot B^u(\Delta t) + c_2 \cdot S^u(\Delta t) & = & C_u(\Delta t) \\
+c_1 \cdot B^d(\Delta t) + c_2 \cdot S^d(\Delta t) & = & C_d(\Delta t)
+\end{eqnarray*}
+Ohne Beschränkung der Allgemeinheit kann $B(0) = 1$ gesetzt werden. Da die Anleihe risikolos ist, gilt $B^u(\Delta t) = B^d(\Delta t) = e^{r\Delta t}$ und wir erhalten durch Einsetzen von $S^u(\Delta t)$ und $S^d(\Delta t)$:
+\begin{eqnarray}
+c_1 \cdot e^{r\Delta t} + c_2 \cdot uS & = & C_u(\Delta t) \nonumber \label{Bin:gleichungssystem} \\
+c_1 \cdot e^{r\Delta t} + c_2 \cdot dS & = & C_d(\Delta t)  
+\end{eqnarray}
+Und die Lösung dieses Gleichungssystems lautet (siehe Anhang \ref{Anhang:LGS}):
+\[
+		c_1 = \frac{uC_d - dC_u}{(u - d)e^{r\Delta t}} \quad , \quad c_2 = \frac{C_u - C_d}{(u-d)S}  
+\]
+Da $c_1$ und $c_2$ nun so gewählt sind, dass das Portolio genau die Call-Option repliziert, ergibt sich ihr Preis als der Wert des Portfolios zum Zeitpunkt $t=0$ und mit $S_0 = S$ folgt:
+\begin{eqnarray}    
+C_0  = c_1 \cdot 1 + c_2 \cdot S    & = & \frac{uC_d - dC_u}{(u - d)e^{r\Delta t}} \cdot 1 + \frac{C_u - C_d}{(u-d)S} \cdot S \nonumber \\
+                                    & = & \frac{uC_d - dC_u}{(u - d)e^{r\Delta t}} \cdot 1 + \frac{C_ue^{r\Delta t} - C_de^{r\Delta t}}{(u-d)e^{r\Delta t}} \nonumber \\ 
+                                    & = & e^{-r\Delta t} \left( \frac{e^{r\Delta t} - d}{u-d} \cdot C_u + \frac{u - e^{r\Delta t}}{u-d}\cdot C_d\right) \nonumber \\
+                                    & = & e^{-r\Delta t}\left(pC_u + (1-p)C_d\right) \nonumber \\ 
+		  	 	 				  & = & e^{-r\Delta t} \mathbb{E}_p\left[C_{\Delta t}\right] \label{BIN:1PeriodenCall}
+\end{eqnarray}
+Mit $ 0 \leq p = \frac{e^{r\Delta t} - d}{u-d} \leq 1 $ als die sogenannte \glqq risikoneutrale Wahrscheinlichkeit\grqq\, und $\mathbb{E}_p\left[ \,\cdot\, \right]$ als der Erwartungswert unter $p$. Durch Multiplikation mit dem Diskontfaktor $e^{-r\Delta t}$ erhalten wir den Barwert - respektive den Preis - unserer Option.
+
+Dass der Preis der Option genau dem des Portfolios entspricht, folgt aus der Annahme der Arbitragefreiheit. Da beide das gleiche Gut liefern, könnte man bei einem Preisunterschied durch den Einkauf des günstigeren und gleichzeitigem Verkauf des teureren einen risikolosen Gewinn erzielen.
+
+Das bedeutet, dass wir zu einer Aktie $S$ mit gegebenen Parametern $u, \, d \text{ und } q$ den Wert einer Call-Option bestimmen können. Da unser Modell mit nur einer Periode allerdings sehr einschränkend ist, wollen wir unsere Überlegungen im Folgenden auf $n \geq 2$ Perioden übertragen.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{n-Perioden-Modell}                 %%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Mit der Erweiterung auf mehrere Perioden erhalten wir durch die breitere Streuung und den detaillierteren Verlauf des Kurses eine bessere Modellierung unseres Options- bzw. Aktienkurses. Wir betrachten einen Zeithorizont $T$, der in n Zeitschritte der Länge $\Delta t = \frac{T}{n}$ unterteilt wird. Mit $S_k^n \coloneqq u^kd^{n-k}S$ erhalten einen n-Perioden Binomialbaum für die Entwicklung des Aktienkurses:
+\begin{figure}[htbp!] \label{BIN:BinomialbaumAktie}
+\begin{tikzpicture}[sloped]
+		\node (z) at (-2,0) [bag] {};
+		% Anlegen der Knoten
+		% 1
+  			\node (a) at (0,0) [bag] {$S_0$};
+		% 2
+ 		 	\node (b) at (2.5,-0.5) [bag] {$S_0^1$};
+  			\node (c) at (2.5,0.5) [bag] {$S_1^1$};
+		% 3
+  			\node (d) at (5,-1) [bag] {$S_0^2$};
+  			\node (e) at (5,0) [bag] {$S_1^2$};
+  			\node (f) at (5,1) [bag] {$S_2^2$};
+		% 4
+			\tikzstyle{bag} = [text width=0.5em, text centered]
+  			\node (g) at (6.5,-1) [bag] {};
+  			\node (h) at (6.5,0) [bag] {};
+  			\node (i) at (6.5,1) [bag] {};
+  			\tikzstyle{bag} = [text width=0.5em, text centered]
+		% 5
+  			\node (j) at (9,-1.5) [bag] {$S^n_0$}; % Cuuuuuuuuu
+  			\node (k) at (9,-0.5) [bag] {$S^n_1$};
+ 			\node (l) at (9, 0.5) [bag] {$S_{n-1}^n$};
+  			\node (m) at (9,1.5)[bag] {$S_n^n$};
+  		% Zeichnen der Pfeile
+		% 1
+			\draw [->] (a) to node [below] {$1-q$} (b);
+  			\draw [->] (a) to node [above] {$q$} (c);
+  		%2
+  			\draw [->] (c) to node [above] {} (f);
+  			\draw [->] (c) to node [above] {} (e);
+  			\draw [->] (b) to node [above] {} (e);
+  			\draw [->] (b) to node [below] {} (d);
+  		%3
+  			\draw [line width=1.1pt, style=loosely dotted] (d) to node [above] {} (g);
+  			\draw [line width=1.1pt, style=loosely dotted] (e) to node [above] {} (h);
+  			\draw [line width=1.1pt, style=loosely dotted] (f) to node [above] {} (i);
+  			\draw [line width=1.1pt, style=loosely dotted] (7.75,-0.5) to (7.75,0.5);
+ 		 %4
+  			\draw [->] (g) to node [above] {} (j);
+  			\draw [->] (g) to node [above] {} (k);	
+  			\draw [->] (i) to node [above] {} (l);
+  			\draw [->] (i) to node [above] {} (m); 
+  		%5
+  			\draw [line width=1.1pt, style=dotted] (l) to node [above] {} (k);
+  
+		\end{tikzpicture}
+		\caption{n-Perioden Binomialbaum der Option}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Europäische Optionen}             %%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Unsere Überlegungen des Ein-Perioden-Modells können wir direkt auf $n$ Perioden übertragen und uns ohne weitere Vorbereitung den Binomialbaum der Option zeichnen.
+\begin{figure}[htbp!]
+\begin{tikzpicture}[sloped]
+		\node (z) at (-2,0) [bag] {};
+		% Anlegen der Knoten
+		% 1
+  			\node (a) at (0,0) [bag] {$C_0$};
+		% 2
+ 		 	\node (b) at (2.2,-0.5) [bag] {$C_d$};
+  			\node (c) at (2.2,0.5) [bag] {$C_u$};
+		% 3
+  			\node (d) at (4.1,-1) [bag] {$C_{dd}$};
+  			\node (e) at (4.1,0) [bag] {$C_{ud}$};
+  			\node (f) at (4.1,1) [bag] {$C_{uu}$};
+		% 4
+			\tikzstyle{bag} = [text width=0.5em, text centered]
+  			\node (g) at (5.5,-1) [bag] {};
+  			\node (h) at (5.5,0) [bag] {};
+  			\node (i) at (5.5,1) [bag] {};
+  			\tikzstyle{bag} = [text width=10em, text centered]
+		% 5
+  			\node (j) at (8.5,-1.5) [bag] {$C_{d...d}=\left(S_0^n-K\right)^{+}$}; % Cuuuuuuuuu
+  			\node (k) at (8.5,-0.5) [bag] {$C_{d..du}=\left(S^n_1-K\right)^{+}$};
+ 			\node (l) at (8.5, 0.5) [bag] {$C_{u..ud}=\left(S_{n-1}^n-K\right)^{+}$};
+  			\node (m) at (8.5,1.5)[bag] {$C_{u...u}=\left(S_n^n-K\right)^{+}$};
+  		% Zeichnen der Pfeile
+		% 1
+			\draw [->] (a) to node [below] {$1-p$} (b);
+  			\draw [->] (a) to node [above] {$p$} (c);
+  		%2
+  			\draw [->] (c) to node [above] {} (f);
+  			\draw [->] (c) to node [above] {} (e);
+  			\draw [->] (b) to node [above] {} (e);
+  			\draw [->] (b) to node [below] {} (d);
+  		%3
+  			\draw [line width=1.1pt, style=loosely dotted] (d) to node [above] {} (g);
+  			\draw [line width=1.1pt, style=loosely dotted] (e) to node [above] {} (h);
+  			\draw [line width=1.1pt, style=loosely dotted] (f) to node [above] {} (i);
+ 		 %4
+  			\draw [->] (g) to node [above] {} (j);
+  			\draw [->] (g) to node [above] {} (k);	
+  			\draw [->] (i) to node [above] {} (l);
+  			\draw [->] (i) to node [above] {} (m); 
+  		%5
+  			\draw [line width=1.1pt, style=dotted] (l) to node [above] {} (k);
+  
+		\end{tikzpicture}
+		\caption{n-Perioden Binomialbaum der Option}
+\end{figure}
+
+Der Wert $ C_0^E $ einer Call-Option ergibt sich wie in (\ref{BIN:1PeriodenCall}) als diskontierter Erwartungswert:
+\begin{eqnarray}
+C_0^E & = & e^{-rn\Delta t} \mathbb{E}_p \left[\left(S_T - K\right)^+\right] \nonumber \\
+    & = & e^{-rn\Delta t} \left[ \sum_{k=0}^n \binom{n}{k} p^k \left( 1-p \right)^{n-k} \left(S^n_k - K \right) ^{+} \right]		
+\end{eqnarray}
+Jedoch wollen wir diese Formel auf eine schönere Gestalt bringen und definieren hierfür eine Zahl $m \coloneqq min\left\{0 \leq k \leq n \, \colon u^kd^{n-k}S - K \geq 0 \right\}$, die uns die minimale Anzahl an \glqq up-Bewegung\grqq \, der Aktie gibt, sodass die Option einen positiven Wert hat. Damit können wir die ersten $m-1$ Summanden vernachlässigen, da für diese gilt, dass $\left(S_k^n-K\right)^+ = 0$ und erhalten
+\begin{eqnarray*}
+C_0^E & = & e^{-rn\Delta t} \left[ \sum_{k=m}^n \binom{n}{k} p^k \left( 1-p \right)^{n-k} \left(S^n_k - K \right) \right] \\
+    & = & e^{-rn\Delta t}\left[\sum_{k=0}^n \binom{n}{k} (pu)^k \left( (1-p)d \right)^{n-k}S - \sum_{k=0}^n \binom{n}{k} p^k \left( 1-p \right)^{n-k}K\right] \\
+    & = & S \sum_{k=m}^n \binom{n}{k} \left(pue^{-r\Delta t} \right)^k \left( (1-p)de^{-r\Delta t}  \right)^{n-k} - Ke^{-rn\Delta t} \sum_{k=m}^n \binom{n}{k} p^k \left( 1-p \right)^{n-k}
+\end{eqnarray*}
+Wir definieren $p' \coloneqq pue^{-r\Delta t}$ (damit $(1-p)de^{-r\Delta t} = (1-p')$) und mit der Verteilungsfunktion von $ \mathbb{P}\left(X_p \geq m\right) = \sum_{k=m}^n \binom{n}{k} p^k \left( 1-p \right)^{n-k}$ von $ X_p \sim \mathcal{B}(n,p)$ erhalten wir eine Formel zur Bestimmung des Optionspreises:
+\begin{eqnarray}
+C_0^E & = 	&  S\sum_{k=m}^n \binom{n}{k} \left(p'\right)^k \left( 1-p'  \right)^{n-k} - Ke^{-rn\Delta t} \sum_{k=m}^n \binom{n}{k} p^k \left( 1-p \right)^{n-k} \nonumber  \\ 
+    & = 	& S \cdot \mathbb{P}\left(X_{p'} \geq m\right) - Ke^{-rT} \cdot \mathbb{P}\left(X_p \geq m\right) \label{BIN:calloption}
+\end{eqnarray}
+
+Nachdem wir nun eine Formel für die Europäischen Call-Optionen haben, können wir mit den gleichen Überlegungen eine Formel für Put-Optionen herleiten. Dafür sei $m' \coloneqq max\left\{0 \leq k \leq n \, \colon K - u^kd^{n-k}S > 0 \right\}$.
+\begin{eqnarray*}
+P_0^E & = & e^{-rn\Delta t} \left[ \sum_{k=0}^n \binom{n}{k} p^k \left( 1-p \right)^{n-k} \left(K - S^n_k \right)^+ \right] \\
+    & = & Ke^{-rn\Delta t} \sum_{k=0}^{m'} \binom{n}{k} p^k \left( 1-p \right)^{n-k} - S \sum_{k=0}^{m'} \binom{n}{k} \left(p'\right)^k \left(1-p'\right)^{n-k} \\
+    & = & Ke^{-rT} \cdot \mathbb{P}\left(X_{p} \leq m'\right)  - S \cdot \mathbb{P}\left(X_{p'} \leq m'\right)
+\end{eqnarray*}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Amerikanische Optionen}              %%%%%%%%%%%%%%%%
+\label{cha:BINAmerikanische}                     %%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Nachdem wir die Europäischen Optionen mithilfe der Binomialbäume bewertet haben, wollen wir nun unser Augenmerk auf die Amerikanischen Gegenstücke wenden. Der bedeutende Unterschied der Optionstypen ist die Möglichkeit der Amerikanischen Option, schon vor dem Endzeitpunkt $T$ ausgeübt zu werden. Diese Tatsache spiegelt sich selbstverständlich im Preis wieder, da die Option dadurch nicht mehr als diskonierter Erwartungswert $\mathbb{E}_p\left[ P_T \right]$ berechnet werden kann, da auch die Entwicklung des Aktienkurses für $0<t<T$ für die Preisbestimmung von Bedeutung ist.
+Wir müssen also einen anderen Ansatz wählen.
+\\
+Der Käufer einer Amerikanischen Option muss zu jedem Zeitpunkt $k\Delta t,\; k<n,$ die Entscheidung treffen, ob er seine Option ausübt oder nicht. Eine rationale Entscheidungsgrundlage bildet dabei der Vergleich der erwarteten, zukünftigen und der heutigen Auszahlung. Falls die Auszahlung \textit{heute} größer ist, als die um einen Zeitschritt diskontierte, erwartete Auszahlung \textit{morgen}, so übt er seine Option aus. Falls das nicht der Fall ist, behält er seine Option, da  er in der Zukunft eine höhere Auszahlung erwartet.
+
+Zum Zeitpunkt T hat der Käufer der amerikanischen Option keine Wahlmöglichkeit mehr. Er wird seine Option nur ausüben, falls $\Lambda(S_T) > 0$. Sei $P^l_k$ der Optionspreis zum Zeitpunkt $l\Delta t$, nachdem die Aktie $k$ Aufwärtsbewegungen unternommen hat. Der Optionswert $P^l_k$ ist demnach das Maximum aus Erwartungswert und Auszahlung
+\begin{equation}
+P^{k}_l = max\left\{\mathbb{E}_p\left[P_{l+1}\right],\,\left(K-u^kd^{l-k}S\right)^+\right\} \label{BIN:AmMax}
+\end{equation}
+Für $l = n-1$ erhalten wir also den Optionswert für alle Knoten des Zeitpunkts $(n-1)\Delta t$. Auf diese Art und Weise können wir weiter durch den Binomialbaum iterieren und erhalten zuletzt den heutigen Optionspreis $P_0$.
+Zur Bewertung einer Amerikanischen Put-Option halten wir folgenden Algorithmus fest:
+\begin{center}
+\begin{enumerate}
+\item Initalisiere Binomialbaum für die Aktie.
+\item Berechne die Optionswerte zur Fälligkeit $T$.
+\item Iteriere durch den Baum. \\
+   \hspace{1cm} Für $l = (n-1):-1:0$ \\
+   \hspace{2cm} Für $k = 0:l$ \\
+   \hspace{3cm} Berechne: $P^{l}_k = max\left\{\mathbb{E}_p\left[P^{l+1}\right],\,\left(K-u^kd^{l-k}S\right)^+\right\}$\\
+   und erhalte Optionspreis $P_0$.
+\end{enumerate}
+\end{center}
+
+Für eine Amerikanische Call-Option könnten wir den gleichen Algorithmus verwenden, jedoch gilt für eine Call-Option, auf die keine Dividende gezahlt wird:
+\begin{eqnarray*}
+\mathbb{E}_p\left[C^{l+1}\right] &=& p\left(u^{k+1}d^{l-k}S-K\right)^+ + \left(1-p\right)\left(u^kd^{l+1-k}S-K\right)^+ \\
+                                 &=& \left(pu^{k+1}d^{l-k}S-pK\right)^+ + \left(\left(1-p\right)u^kd^{l+1-k}S-\left(1-p\right)K\right)^+ \\
+                                 &\geq & \left(pu^{k+1}d^{l-k}S-pK + \left(1-p\right)u^kd^{l+1-k}S-\left(1-p\right)K\right)^+ \\
+                                 &=& \left(\underbrace{\left(pu+\left(1-p\right)d\right)}_{=e^{r\Delta t}>1} u^kd^{l-k}S-K\right)^+ \geq \left(u^kd^{l-k}S-K\right)^+
+\end{eqnarray*}
+Also kann geschlossen werden, dass es nie lohnt, eine Amerikanischen Call-Option auf eine Aktie, die keine Dividende ausschüttet, auszuüben. Damit gilt:
+\begin{equation}
+C^A_0 = C^E_0 = S \cdot \mathbb{P}\left(X_{p'} \geq m\right) - Ke^{-rT} \cdot \mathbb{P}\left(X_p \geq m\right)
+\end{equation}
+Im Folgenden wollen wir unseren Binomialbaum ein wenig modifizieren, um auch für kleinere Schrittanzahlen eine bessere Approximation zu erhalten.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Anpassen der Parameter}              %%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+An dieser Stelle muss ein wenig vorweg gegriffen werden, da wir das Black-Scholes-Modell erst in Kapitel \ref{cha:black-Scholes-Modell} behandeln werden. In diesem wird der Aktienkurs mithilfe einer Brown'schen Bewegung modelliert (vgl. (\ref{BS:aktienkurs})):
+\begin{eqnarray}
+                & S^{BS}_t =                              & S_0\,exp\left[ \left( r - \tfrac{1}{2}\sigma^2\right)t + \sigma W_t\right] \\
+\Leftrightarrow & ln\left(\tfrac{S^{BS}_t}{S_0}\right) = & \left( r - \tfrac{1}{2}\sigma^2\right)t + \sigma W_t \label{BS:aktienkursrendite}
+\end{eqnarray}
+Für die Rendite (\ref{BS:aktienkursrendite}) der zugrundeliegenden Aktie und deren Kursentwicklung zum Endzeitpunkt $T = n\Delta t$ gilt
+\begin{eqnarray}
+\mathbb{E}\left[ ln\left(\tfrac{S^{BS}_{n\Delta t}}{S_0}\right) \right] & = & \left( r - \tfrac{1}{2}\sigma^2\right)n\Delta t \label{BS:erwartungswertRendite}\\
+Var\left[ ln\left(\tfrac{S^{BS}_{n\Delta t}}{S_0}\right) \right]        & = & \sigma^2n\Delta t \label{BS:varianzRendite}
+\end{eqnarray}
+
+Um unsere Parameter $u, \, d$ und $p$ an das Black-Scholes-Modell anzupassen, stellen wir Bedinungen an die ersten zwei Momente unseres Aktienkurses $S_T$ im Binomialmodell. Dafür sei $R_i$ eine Bernoulli-verteilte Zufallsvariable mit $R_i = 1$, wenn der Aktienkurs im Schritt $(i-1)\Delta t$ nach $i\Delta t$ steigt und $R_i = 0$, wenn dieser fällt. Also $\mathbb{P}\left(R_i=1 \right) = q$ und $\mathbb{P}\left(R_i=0 \right) = 1-q$. Damit gibt uns die Summe $\sum_{k=1}^{n}R_i$ die Anzahl der Aufwärtsbewegungen und $ n - \sum_{k=1}^{n}R_i$ die Anzahl der Abwärtsbewegungen und es folgt
+\begin{eqnarray}
+                & S_{n\Delta t} =                     & u^{\left(\sum R_i\right)}d^{\left(n-\sum_{k=1}^{n}R_i\right)}S_0 \nonumber \label{BIN:aktienkurs} \\
+\Leftrightarrow & ln\left(\frac{S_{n\Delta t}}{S_0}\right) = & n \, ln(d) + ln\left(\frac{u}{d}\right)\sum_{k=1}^{n}R_i \label{BIN:aktienkursrendite}
+\end{eqnarray}
+mit
+%\begin{equation}
+%ln\left(\tfrac{S_T}{S_0}\right) = n \, ln(d) + ln\left(\frac{u}{d}\right)\sum_{k=1}^{n}R_i 
+%\end{equation}
+%mit Erwartungswert $n \, ln(d) + ln\left(\frac{u}{d}\right)n\,p$ und Varianz $ = ln \left(\tfrac{u}{d}\right)^2n\,p(1-p)$
+\begin{eqnarray}
+\mathbb{E}\left[ ln\left(\tfrac{S_{n\Delta t}}{S_0}\right) \right] & = & n \, ln(d) + ln\left(\frac{u}{d}\right)n\,p \label{BIN:erwartungswertRendite}\\
+Var\left[ ln\left(\tfrac{S_{n\Delta t}}{S_0}\right) \right]        & = & ln \left(\tfrac{u}{d}\right)^2n\,p(1-p) \label{BIN:varianzRendite}
+\end{eqnarray}
+
+Durch Gleichsetzen von (\ref{BS:erwartungswertRendite}) und (\ref{BS:varianzRendite}) mit (\ref{BIN:erwartungswertRendite}) und (\ref{BIN:varianzRendite}) erhalten wir ein Gleichungssystem
+\begin{eqnarray}
+ln(d) + ln\left(\frac{u}{d}\right)p & = & \left( r - \tfrac{1}{2}\sigma^2\right)\Delta t \label{BIN:GS1} \\
+ln \left(\frac{u}{d}\right)^2p(1-p)     & = &  \sigma^2\Delta t \label{BIN:GS2}
+\end{eqnarray}
+welches mit der Zusatzbedingung $u\cdot d = 1$ \footnote{Eine andere Möglichkeit wäre $p = \frac{1}{2}$ zu setzen.} und Vernachlässigung von Termen der Ordnung $\left(\Delta t\right)^2$ gelöst werden kann (siehe Anhang \ref{Anhang:GSParameter}).
+\begin{eqnarray}
+u & = & e^{\sigma \sqrt{\Delta t}} \nonumber \\
+d & = & e^{-\sigma \sqrt{\Delta t}} \label{BIN:parameter} \\
+p & = & \tfrac{1}{2} + \tfrac{1}{2}\left(r-\tfrac{1}{2} \sigma^2\right)\tfrac{\sqrt{\Delta t}}{\sigma} \nonumber
+\end{eqnarray}
+
+Bezüglich der neuen Wahl des Parameters $p$ (vgl. Abschnitt \ref{cha:Ein-Perioden-Modell}) zeigt eine Taylorentwicklung von $p = \frac{e^{r\Delta t} - d}{u-d}$, dass die Konvergenz für beide Wahlen des Parameters sichergestellt ist und der Fehler von gleicher Ordnung ist (siehe Anhang \ref{Anhang:pundp'}).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Konvergenz des Binomialmodells}           %%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In diesem Abschnitt werden wir uns die Konvergenz unseres zeitdiskreten Binomialmodells anschauen. Mit wachsender Schrittanzahl $n$ und damit $\Delta t \rightarrow 0$ sollten wir eine immer feinere Darstellung unseres Aktienkurses und somit eine Konvergenz gegen das zeitkontinuierliche Black-Scholes-Modell erhalten, denn nur dann liefert uns das Binomialmodell im Grenzwert den wahren Wert unserer Option. Da es keinen analytischen Lösungsansatz zur Bewertung von Amerikanischen Optionen im Black-Scholes-Modell gibt, werden wir uns \textit{nur} die Konvergenz der Europäischen Optionen anschauen.
+
+Hierfür benötigen wir folgende Version des Zentralen Grenzwertsatzes.
+\begin{satz}[Zentraler Grenzwertsatz] \label{ZGS}
+Sei $Y_n \sim \mathcal{B}(n,p)$, $n \in \mathbb{N}$, eine Folge binomialverteilter Zufallsvariablen auf einem Wahrscheinlichkeitsraum. Dann gilt %$\mathcal{B}(n,p)$
+\[
+	\lim\limits_{n \rightarrow \infty}{\mathbb{P} \left( \frac{Y_n - np}{\sqrt{np(1-p)}} \leq x \right)} = \Phi(x) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^x \! e^{-\tfrac{s^2}{2}}  \, \mathrm{d}s
+\]
+\end{satz}
+\begin{proof}
+Auf den Beweis des Satzes wird an dieser Stelle verzichtet, nachzulesen ist dieser in \cite{Kupper1} Theorem 4.25 (S. 46) .
+\end{proof}
+
+\begin{satz}[Call-Option] \label{BIN:konvergenzCallOption}
+Sei $ T \in \mathbb{R}$, $ n \in \mathbb{N}$, $\Delta t = \tfrac{T}{n}$, $u, \, d \text{ und } p$ wie in (\ref{BIN:parameter}). Dann gilt für den Wert der Call-Option (\ref{BIN:calloption}) im Grenzwert $ n \rightarrow \infty$ bzw. $ \Delta t \rightarrow 0$ : 
+\[
+S \cdot \mathbb{P}\left( X_{p'} \geq m \right) - Ke^{-rT} \cdot \mathbb{P} \left( X_p \geq m \right) \longrightarrow S \Phi\left(d_1\right) - Ke^{-rT}\Phi\left(d_2\right)\footnote{Wert einer Call-Option im Black-Scholes-Modell, siehe Kapitel \ref{cha:LoesungWaermeleitungsgleichung}.}
+\]
+Mit $ d_{\nicefrac{1}{2}} = \frac{ln(S/K) + (r \pm \sigma ^2/2)T}{\sigma \sqrt{T}}$\footnote{Da wir keine Dividende haben, ist $D_0 = 0$.} und $\Phi\left(\cdot\right)$ die Verteilungsfunktion der Standardnormalverteilung. 
+\end{satz}
+
+\begin{proof}\footnote{Der Beweis ist angelehnt an \cite{GuentherJuengel}.}
+Zuerst zeigen wir $ \mathbb{P} \left( X_p \geq m \right) \to \Phi\left(d_2\right) $. Folgende Grenzwerte sind direkt ersichtlich.
+\begin{equation*}
+\lim\limits_{\Delta t \to 0} p = \frac{1}{2} \quad , \quad 
+\lim\limits_{\Delta t \to 0} \tfrac{2p - 1}{\sqrt{\Delta t}} = \frac{r}{\sigma} - \frac{\sigma}{2} 
+\end{equation*}
+Und damit
+\[
+\begin{array}{rcl}
+\lim\limits_{\Delta t \to 0} np(1-p)\left(ln\left(\frac{u}{d}\right)^2\right)     & = & \lim\limits_{\Delta t \to 0} np(1-p)\left(2\sigma\sqrt{\Delta t}\right)^2 \\
+                                                                                  & = & \lim\limits_{\Delta t \to 0} T\sigma^2 \\
+\lim\limits_{\Delta t \to 0} n\left(p\, ln\left(\frac{u}{d}\right) + ln(d)\right) & = & \lim\limits_{\Delta t \to 0} n\left(2p\sigma\sqrt{\Delta t} - \sigma\sqrt{\Delta t}\right) \\
+                                                                                  & = & \lim\limits_{\Delta t \to 0} \frac{T}{\Delta t} \left(2p - 1\right)\sigma\sqrt{\Delta t} \\
+                                                                                  & = & T\sigma\left(\frac{r}{\sigma} - \frac{\sigma}{2}\right) \\
+                                                                                  & = & T\left(r-\frac{1}{2}\sigma^2\right)
+\end{array}
+\]
+Außerdem haben wir nach der Definition von $m$ in (\ref{BIN:calloption}):
+\begin{alignat*}{4}
+                      & u^md^{n-m}S-K                              & \; \geq \; & 0 \\
+\Leftrightarrow \quad & m\, ln\left(\frac{u}{d}\right) + n\, ln(d) & \; \geq \; & -ln\left(\nicefrac{S}{K}\right) \\
+\Leftrightarrow \quad & m                                          & \; = \;    & \frac{-ln\left(\nicefrac{S}{K}\right) - n\, ln(d)}{ln\left(\frac{u}{d}\right)} + \alpha
+\end{alignat*}
+für ein $\alpha \in \left[0,1\right)$\footnote{Ein $\alpha \geq 1$ stünde im Widerspruch zur Minimalheit von m.}. Damit können wir die Konvergenz zeigen.
+\begin{eqnarray*}
+\mathbb{P} \left( X_p \geq m \right) & = & \mathbb{P} \left( \frac{X_p - np}{\sqrt{np(1-p)}} \geq \frac{m - np}{\sqrt{np(1-p)}} \right) \\
+                                     & = & \mathbb{P} \left( \frac{X_p - np}{\sqrt{np(1-p)}} \geq \frac{-ln\left(\frac{S}{K}\right) - n\left(ln(d) + p\,ln\left(\frac{u}{d}\right)\right) + \overbrace{\alpha\,ln\left(\frac{u}{d}\right)}^{\to\,  0}}{ln\left(\frac{u}{d}\right)\sqrt{np(1-p)}}\right) \\
+                                     & \underset{(\ref{ZGS})}{\xlongrightarrow{n \to \infty}} &\Phi \left( x \geq \frac{-ln\left(\frac{S}{K}\right) - \left(r-\frac{1}{2}\sigma^2\right)T}{\sigma\sqrt{T}} \right) \\
+                                     & = & 1 - \Phi \left( x \leq \frac{-ln\left(\frac{S}{K}\right) - \left(r-\frac{1}{2}\sigma^2\right)T}{\sigma\sqrt{T}} \right) \\
+                                     & = & 1 - \Phi\left(-d_2\right) = \Phi\left(d_2\right)
+\end{eqnarray*}
+Der Beweis von $ \mathbb{P} \left( X_{p'} \geq m \right) \to \Phi\left(d_1\right) $ verläuft mit 
+\begin{equation*}
+\lim\limits_{\Delta t \to 0} p' = \frac{1}{2} \quad , \quad 
+\lim\limits_{\Delta t \to 0} \tfrac{2p' - 1}{\sqrt{\Delta t}} = \frac{r}{\sigma} + \frac{\sigma}{2}
+\end{equation*}
+analog\footnote{Der zweite Grenzwert mithilfe einer Taylorentwicklung (Anhang \ref{Anhang:Taylorp'})}.
+
+ 
+
+\end{proof}
+
+\begin{satz}[Put-Option] \label{BIN:konvergenzPutOption}
+In der Situation von Satz \ref{BIN:konvergenzCallOption} gilt für den Wert der Put-Option (\ref{BIN:putoption}):
+\[
+Ke^{-rT} \cdot \mathbb{P}\left(X_{p} \leq m'\right)  - S \cdot \mathbb{P}\left(X_{p'} \leq m'\right) \longrightarrow Ke^{-rT} \Phi\left(-d_2\right)  - S \cdot \Phi\left(-d_1\right)
+\]
+\end{satz}
+
+\begin{proof}
+Da $\left\{0 \leq k \leq n \, \colon K - u^kd^{n-k}S > 0 \right\} \dot\cup \left\{0 \leq k \leq n \, \colon u^kd^{n-k}S - K \geq 0 \right\}$ eine Partitionierung von $\left\{0,...,n\right\}$ sind, gilt $m = m' + 1$. Damit erhalten wir durch $\mathbb{P} \left( X_p \leq m'\right) = 1 - \mathbb{P}\left(X_p \geq m\right)$
+\begin{equation*}
+P_0 = Ke^{-rT} \cdot \left( 1 - \mathbb{P}\left(X_{p} \geq m\right)\right)  - S \cdot \left( 1 - \mathbb{P}\left(X_{p'} \geq m\right)\right) \label{BIN:putoption}
+\end{equation*}
+Und aufgrund der Symmetrie von $\Phi(\cdot)$ und der Argumentation aus Satz \ref{BIN:konvergenzCallOption} erhalten wir
+\begin{eqnarray*}
+\mathbb{P}\left(X_{p} \leq m'\right) = 1 - \mathbb{P}\left(X_{p} \geq m\right) & \to & 1 - \Phi\left(d_2\right) = \Phi\left(-d_2\right) \\
+\mathbb{P}\left(X_{p'} \leq m'\right) = 1 - \mathbb{P}\left(X_{p'} \geq m\right)& \to & 1 - \Phi\left(d_1\right) = \Phi\left(-d_1\right)
+\end{eqnarray*}
+\end{proof}
+
+
+
+Es kann gezeigt werden, dass für den Fehler des Binomialmodells gilt $e_N\leq\frac{F}{N}$ für ein $F>0$, also lineare Konvergenz. Für eine Analyse des Konvergenzverhaltens, unter anderem der Konvergenzordnung, sei auf \cite{LeisenReimer} oder \cite{Walsh} verwiesen. Eine graphische Darstellung der Konvergenz des Binomialmodells ist für den Fall einer europäischen Call-Option in Beispiel \ref{BSP:BINModell} zu finden. Das Matlab Programm zu diesem Kapitel befindet sich in Anhang \ref{Anhang:ProgrammeKapitel3}.
+
+Im Folgenden wollen wir die Idee des selbstfinanzierenden und die Auszahlung der Option replizierenden Portfolios vom zeitdiskreten Binomialmodell auf ein zeitkontinuierliches, das Black-Scholes-Modell, übertragen. Die dafür notwendigen mathematischen Grundlagen sind im Kapitel \ref{cha:MathematischeGrundlagen} zusammengefasst.

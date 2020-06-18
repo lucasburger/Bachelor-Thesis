@@ -1,0 +1,142 @@
+% Ökonomische und mathematische Grundlagen zur Bewertung von Optionen
+
+\chapter{Grundlagen}
+
+
+Um in das Thema der Optionsbewertung einsteigen zu können, bedarf es einiger Grundlagen, die im Folgenden geschaffen werden. Dabei geht es zum Einen um stochastische Prozesse und Itô's Lemma, zum Anderen um einige Begriffsklärungen, die für das Verständnis des ökonomischen Hintergrundes wichtig sind (z.B. Aktie, Option, Arbitrage...). Für tiefergehende Literatur sei auf \cite{Hull} (Ökonomisch) und \cite{Kupper1}/\cite{Kupper2} bzw. \cite{Bauer} (Mathematisch) verwiesen.
+
+\newtheoremstyle{normal}% normale Schrift
+{10pt}% hSpace abovei
+{10pt}% hSpace belowi
+{\normalfont}% hBody fonti
+{}% hIndent amounti1
+{\normalfont}% hTheorem head fonti
+{}% Punctuation after theorem headi
+{0.8em}% hSpace after theorem headi2
+{\bfseries{\thmname{#1}\thmnumber{ #2}.\thmnote{ \hspace{0.2em}(#3)}}}% hTheorem head spec (can be left empty, meaning `normal')
+ 
+
+
+\theoremstyle{normal}
+\newtheorem{Definition}{Definition}[chapter]
+\newtheorem{satz}[Definition]{Satz}
+\newtheorem{bsp}[Definition]{Beispiel}
+\newtheorem{Lemma}[Definition]{Lemma}
+\newtheorem{Theorem}[Definition]{Theorem} 
+\newtheorem*{Bemerkung}{Bemerkung}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Mathematische Grundlagen}            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{cha:MathematischeGrundlagen}           %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Sei $ \left(\Omega,\mathcal{F},\mathbb{P}\right) $ ein Wahrscheinlichkeitsraum über einem Ereignisraum $\Omega$, sowie einer $\sigma\text{-Algebra  }\mathcal{F}$ und einem Wahrscheinlichkeitsmaß $\mathbb{P}$.
+%%%%%%%%%%%%%%%%% Stochastischer Prozess %%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{Definition}
+Ein (stetiger) stochastischer Prozess $\left(X_t\right)_{t\geq0}$ auf einem Wahrscheinlichkeitsraum $ \left(\Omega,\mathcal{F},\mathbb{P}\right) $ ist eine Folge von Zufallsvariablen  $X: \Omega \times \left[0,\infty \right) \mapsto \mathbb{R} $. Für ein festes $\omega \in \Omega$ ergibt sich ein stetiger Pfad $t \mapsto X\left(\omega,t\right)$.
+\end{Definition}
+
+%%%%%%%%% Brownsche Bewegung %%%%%%%%%%%%%%%%%%%%%
+\begin{Definition}[Brown'sche Bewegung]
+Ein stochastischer Prozess $\left(W_t\right)_{t\geq0}$ mit den Eigenschaften
+\begin{enumerate}
+\item $W_0 = 0 \,\,\mathbb{P}\textit{-fast sicher, d.h. } \mathbb{P}\left(\omega \in \Omega : W\left(0,\omega\right) \neq 0 \right) = 0 $.
+\item $\textit{Die Inkremente } W_t - W_s \textit{ für } t>s \textit{ sind } \mathcal{N}(0,t-s) \textit{-verteilt}$.
+\item $\textit{Für alle } 0\leq t_1 < t_2 < ... < t_n \textit{ sind } W_{t_2} - W_{t_1}, \, ... \, ,W_{t_n}-W_{t_{n-1}} \\ \textit{unabhängig}$.
+\end{enumerate}
+wird Brown'sche Bewegung oder Wiener Prozess genannt.
+\end{Definition}
+
+%%%%%%%%%%% Itô-Prozess %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{Definition} \label{def:ito-Prozess}
+Sei $\left(X_t\right)_{t\geq0}$ ein stochastischer Prozess. Eine stochastische Differentialgleichung nach Itô ist von der Form
+\begin{equation}
+dX_t = a(X_t,t)dt + b(X_t,t)dW_t \label{def:ito-DGL}
+\end{equation}
+mit hinreichend regulären Funktionen $a(x,t)$ und $b(x,t)$ und ist äquivalent zu folgender Integralgleichung:
+\begin{equation}
+X_t = X_0 + \int_0^t \! a(X_s,s) ds + \int_0^t \! b(X_s,s)dW_s
+\end{equation}
+Hierbei ist das erste ein gewöhnliches Lebesgue-Integral und das zweite ein sogenanntes Itô-Integral über eine Brown'sche Bewegung $\left(W_t\right)_{t\geq0}$.
+\end{Definition}
+
+Ein (stochastischer) Prozess $X_t$  wird Itô-Prozess genannt, wenn er von obiger Form ist. In diesem werden $a(X_t,t)dt$ als  \glqq Drift-Term\grqq \, und $b(X_t,t)dW_t$ als \glqq Diffusions-Term\grqq \,bezeichnet.
+
+
+%%%%%%%%%%%%%%% Itô's Lemma %%%%%%%%%%%%%%%%%%
+\begin{Lemma}[Itô]\label{GL:itosLemma}
+Sei $f \in C^{2,1}(\mathbb{R}, \mathbb{R}^+), \, T \in \mathbb{R}^+ \textit{ und } X = \left(X_t\right)_{t\geq0}$ ein Itô-Prozess. Dann ist $f(X_t,t)$ ein Itô-Prozess und es gilt für jedes $t \in \left[0,T\right]$:
+\begin{eqnarray*}
+f(X_t,t) & = & f(0,0) + \int_0^t \! \left( \frac{\partial f}{\partial t} \left(X_s,s\right) + a\frac{\partial f}{\partial x}\left(X_s,s\right) + b^2 \frac{1}{2} \frac{\partial ^2 f}{\partial x^2}\left(X_s,s\right) \right) ds \\
+ & & + \int_0^t \! b\frac{\partial f}{\partial x}\left(X_s,s\right) \, dW 
+\end{eqnarray*}
+beziehungsweise als Differentialgleichung (unter Fortlassung der Argumente):
+\begin{equation}
+df = \left( \frac{\partial f}{\partial t}  + a\frac{\partial f}{\partial x} + b^2 \frac{1}{2} \frac{\partial ^2 f}{\partial x^2} \right)dt + b\frac{\partial f}{\partial x}dW_s
+\end{equation}
+
+\begin{proof}
+Für den Beweis dieses Lemmas wird auf \cite{Kupper2} verwiesen.
+\end{proof}
+
+\end{Lemma}
+
+\begin{Bemerkung}
+In weiteren Verlauf werden partielle Ableitungen von Funktionen mit einem Subskirpt geschrieben, also $ \frac{\partial f}{\partial t} = f_t $ oder $\frac{\partial ^2 f}{\partial x^2} = f_{xx}$.
+\end{Bemerkung}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Ökonomische Grundlagen}        %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+In diesem Abschnitt werden einige wichtige Begriffe erläutert und grundlegende Annahmen getroffen.
+
+\begin{Definition}[Aktie]
+Eine Aktie ist ein verbriefter Anteilsschein an einem Unternehmen. Dieser kann an der Börse zu aktuellen Kursen ge- und verkauft werden. Diese Unternehmen - sogenannte Aktiengesellschaften (AG) - nutzen den Verkauf von Aktien zur Beschaffung von Eigenkapital.
+\end{Definition}
+
+\begin{Definition}[Dividende]
+Eine Dividende ist ein Gewinnanteil eines Unternehmens, der an die Aktionäre (die Besitzer der Aktien) ausgeschüttet wird.
+\end{Definition}
+
+
+\begin{Definition}[Option]
+Eine Option ist ein zwischen zwei Parteien abgeschlossener Vertrag, der dem Käufer das Recht, nicht die Pflicht, einräumt, eine Aktie (S) zu einem im Vorraus festgelegten Preis (K, genannt \glqq Strike Price\grqq) zu kaufen (Call-Option) oder zu verkaufen (Put-Option). Man sagt dann, \glqq er übt seine Option aus\grqq. Bei einer \textit{Europäischen Option} darf er dies nur zu \textit{einem bestimmten} Zeitpunkt in der Zukunft tun, bei einer \textit{Amerikanischen Option} darf er auch \textit{zu jedem früheren} Zeitpunkt ausüben. Das Ende dieser Laufzeit wird mit $T$ beschrieben und Fälligkeit genannt.
+\end{Definition}
+
+Optionen bringen je nach Typ und Kursentwicklung des zugrundeliegenden Wertpapieres einen Gewinn ein. Besitzt man eine Call-Option zum Strike Price $K$ und die zugrundeliegende Aktie habe zum Zeitpunkt $T$ den Wert $S_T$, so kann man durch Ausüben der Option einen Gewinn realisieren, wenn $S_T>K$. Falls $S_T \leq K$, kann man keinen Gewinn erzielen und die Option wird nicht ausgeübt.
+Allgemein kann der Wert $V(S_T,T)$ einer Call-Option mit Strike Price $K$ zum Fälligkeitsdatum $T$ also geschrieben werden als (siehe Anhang \ref{Anhang:PlotPayoff}):
+
+\begin{equation*}V^C\left(S,T\right) = \begin{cases}
+S_T - K   & \text{ falls }     S_T > K           \textit{   (Option wird ausgeübt)} \\0         & \text{ falls }     S_T \leq K      \textit{   (Option verfällt)}  \end{cases}
+\end{equation*}
+oder kompakter
+\begin{equation}
+V^C\left(S,T\right) = \left(S_T-K\right)^+ \coloneqq max\left\{S_T-K,0\right\} \label{GL:payoffCall}
+\end{equation}
+Analog ergibt sich für den Wert einer Put-Option:
+\begin{equation}
+V^P\left(S,T\right) = \left(K-S_T\right)^+ \coloneqq max\left\{K-S_T,0\right\} \label{GL:payoffPut}
+\end{equation}
+
+Für die Auszahlungsfunktion\footnote{Da die Option nur das Kaufrecht darstellt, hat sie selbst keine Auszahlung. Gemeint ist der Erlös durch Ausüben der Option und sofortiges (ver-)kaufen der erworbenen/verkauften Aktie.} werden wir $\Lambda (S) = \left(S-K\right)^+$ für die Call-Option und $\Lambda (S) = \left(K-S\right)^+$ für die Put-Option schreiben.
+
+
+\begin{Definition}[Arbitrage]
+Arbitrage ist die Möglichkeit ohne Kapitaleinsatz einen sofortigen Gewinn zu realisieren. Arbitrage kann durch eine ungleiche Bepreisung eines Gutes in verschiedenen Märkten entstehen. Damit kann ein Arbitrageur dieses Gut zu einem günstigeren Preis kaufen und zum gleichen Zeitpunkt (woanders) zu einem teureren verkaufen und erzielt damit einen sofortigen, risikolosen Gewinn.
+\end{Definition}
+
+
+Um eine korrekte Bepreisung der Optionen zu garantieren, diese aber auch gleichzeitig einfach zu halten, werden verschiedene Annahmen gemacht:
+\begin{enumerate}
+\item Der Finanzmarkt ist friktionslos, d.h. es werden weder Transaktionskosten, noch Steuern für Käufe oder Verkäufe erhoben.
+\item Leerverkäufe sind erlaubt, was bedeutet, dass man etwas verkaufen kann, obwohl man es noch gar nicht besitzt.
+\item Es kann stetig gehandelt werden und Anlagen sind beliebig teilbar. Es können also Bruchteile von z.B. einer Aktie verkauft werden. Ebenso werden Anlagen stetig  verzinst und Dividenden stetig ausbezahlt.
+\end{enumerate}
+
+
+
+

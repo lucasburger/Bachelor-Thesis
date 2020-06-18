@@ -1,0 +1,421 @@
+%%%% Definieren der Satz/Theorem/Definition-Styles
+
+\newtheoremstyle{normal}% normale Schrift
+{10pt}% hSpace abovei
+{10pt}% hSpace belowi
+{\normalfont}% hBody fonti
+{}% hIndent amounti1
+{\normalfont}% hTheorem head fonti
+{}% Punctuation after theorem headi
+{0.8em}% hSpace after theorem headi2
+{\bfseries{\thmname{#1}\thmnumber{ #2}.\thmnote{ \hspace{0.2em}(#3)}}}% hTheorem head spec (can be left empty, meaning `normal')
+ 
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Black-Scholes-Modell}               %%%%%%%%%%%%%%%
+\label{cha:black-Scholes-Modell}             %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Das Black-Scholes-Modell (auch Black-Scholes-Merton-Modell\footnote{Merton veröffentlichte einen eigenen Artikel, war allerdings an der Ausarbeitung beteiligt.}) beruht auf den \; Überlegungen der Namensgeber aus dem Jahr 1973. Sie nehmen in ihrem Modell an, dass der Aktienkurs durch zwei Faktoren beeinflusst wird - ein deterministischer Trend und zufälligen Schwankungen um diesen Trend -, sodass der Aktienkurs mithilfe einer stochastischen Differentialgleichung 
+\begin{equation}
+dS_t = \underbrace{\mu\,S\,dt}_{det. Trend}  + \underbrace{\sigma\,S\,dW_t}_{'Zufall'} \label{BS:differentialgleichungAktie}  
+\end{equation}
+beschrieben werden kann, welche die Rendite $\mu$ und die Volatilität $\sigma$ der Aktie $S$, sowie eine Brown'sche Bewegung $\left(W_t\right)_{t \geq 0}$ beinhaltet. Natürlich muss das Finanzprodukt $S$ keine Aktie sein, aber wir werden uns im Rahmen dieser Arbeit auf diese beschränken.
+
+Wenn wir unseren Aktienkurs also als stochastischen Prozess auffassen, erhalten wir mit dem Lemma von Itô \ref{GL:itosLemma} eine Lösung von (\ref{BS:differentialgleichungAktie}) (siehe Anhang \ref{Anhang:HerleitungBSAktienkurs}) 
+\begin{equation}
+S_t = S_0\,exp\left[ \left( \mu - \tfrac{1}{2}\sigma^2\right)t + \sigma W_t\right] \label{BS:aktienkurs}
+\end{equation}
+
+Den deterministischen Trend $\mu$ setzen wir auf den risikolosen Zinssatz $r$. In unseren Überlegungen in diesem Kapitel wollen wir außerdem Dividenden berücksichtigen. Wir nehmen an das Dividenden kontinuierlich gezahlt werden und vom aktuellen Kurs der Aktie abhängen. Das bedeutet, in einem Zeitschritt $\Delta t$ wird eine Dividende in Höhe von $D_0\Delta t S$ ausgeschüttet. 
+Mit diesem Hintergrund muss die Differentialgleichung (\ref{BS:differentialgleichungAktie}) angepasst werden und wir erhalten
+\begin{equation}
+dS_t = \left(r-D_0\right)S\,dt  + \sigma\,S\,dW_t\label{BS:differentialgleichungAktieDividende}  
+\end{equation}
+und folglich 
+\begin{equation}
+S_t = S_0\,exp\left[ \left(r - D_0 - \tfrac{1}{2}\sigma^2\right)t + \sigma W_t\right] \label{BS:aktienkursDividende}
+\end{equation}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Die Black-Scholes-Differentialgleichung}        %%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Um Optionen im Black-Scholes-Modell zu bewertet, werden wir uns (ähnlich wie in Abschnitt \ref{cha:Ein-Perioden-Modell}) ein Portfolio konstruieren
+\begin{equation}
+Y(t) = c_1 \cdot B(t) + c_2 \cdot S_t - V(S,t) \label{BS:portfolio}
+\end{equation}
+bestehend aus $c_1$ Anteilen einer Anleihe $B(t)$, $c_2$ Anteilen der Aktie $S_t$ und einer verkauften Option $V(S,t)$, deren Wert vom Aktienkurs $S$ und Zeitpunkt $t$ abhängt.
+\begin{Bemerkung}
+Aus Gründen der Übersichtlichkeit werden im weiteren Verlauf die Argumente weggelassen, d.h. $S=S_t$, $B=B(t)$ und $V=V(S,t)$.
+\end{Bemerkung}
+
+Es wird angenommen, dass dieses Portfolio (i) selbstfinanzierend und (ii) risikolos ist:
+\begin{eqnarray}
+(i)  \; dY & = & c_1 dB + c_2 dS - dV + c_2 D_0 S dt \label{BS:annahmeSelbstfinanzierend}\\
+(ii) \; dY & = & rYdt \label{BS:annahmeRisikolos}
+\end{eqnarray}
+D.h. es fließt weder Geld aus, noch in das Portfolio und alle Umschichtungen in den verschiedenen Positionen werden selbst getragen und da das Portfolio risikolos ist, entspricht dessen Rendite der einer Anleihe.
+
+Da der Aktienkurs (\ref{BS:aktienkursDividende}) ein Itô-Prozess ist, genügt $V(S,t)$ nach Lemma \ref{GL:itosLemma} der Differentialgleichung
+\begin{equation}
+dV = \left( V_t + \left(r - D_0\right)SV_S + \tfrac{1}{2} \sigma^2 S^2 V_{SS}\right)dt + \sigma S V_S dW \label{BS:herleitung1}
+\end{equation}
+Einsetzen von (\ref{BS:differentialgleichungAktieDividende}), (\ref{BS:herleitung1}) und $dB = rB \,dt$ in (\ref{BS:annahmeSelbstfinanzierend}) liefert
+\begin{eqnarray}
+dY &=& \left( c_1rB - V_t - \tfrac{1}{2}\sigma^2S^2V_{SS} + c_2D_0S + \left(c_2 - V_S\right)\left(r - D_0\right)S\right)dt \nonumber \\
+& & + \left(c_2 \sigma S - \sigma S V_S \right)dW \label{BS:herleitung2}
+\end{eqnarray}
+Hier ist der zweite Term durch die Brown'sche Bewegung $W_t$ noch zufällig. Da wir aber ein risikoloses Portfolio annehmen, muss $c_2 = V_S$ gewählt werden und wir erhalten 
+\begin{equation}
+dY = \left( c_1rB - V_t - \tfrac{1}{2}\sigma^2S^2V_{SS} + D_0SV_S\right)dt \label{BS:herleitung3}
+\end{equation}
+Einsetzen von (\ref{BS:portfolio}) und (\ref{BS:herleitung3}) in (\ref{BS:annahmeRisikolos}) ergibt
+\begin{equation}
+V_t + \tfrac{1}{2}\sigma^2S^2V_{SS} + \left(r-D_0\right)SV_S - rV = 0 \label{BS:differentialgleichungOption}
+\end{equation}
+Diese wird Black-Scholes-Differentialgleichung genannt.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Europäische Optionen}                                %%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Um eine (stochastische) Differentialgleichung eindeutig zu lösen, benötigen wir zu-sätzlich End- und Randbedingungen, die wir an die Lösung $V(S,t)$ stellen. Diese sind anhand der Auszahlungsfunktionen (siehe \ref{Anhang:PlotPayoff}) leicht zu bestimmen. Zum Zeitpunkt $T$ entspricht der Wert genau der Auszahlung. Bei einer Call-Option erhalten wir für $S \to \infty$ einen Wert von $S$, wohingegen für $S = 0$ die Option ihren Wert verliert. Bei einer Put-Option erhalten wir für $S \to \infty$ einen Wert von $0$ und für $S = 0$ ist der Wert (da wir die Option erst in $T$ ausüben können) gleich dem Barwert des Strike Price $Ke^{-r(T-t)}$. Wir wollen (\ref{BS:differentialgleichungOption}) also unter den End- und Randbedingungen 
+\begin{equation} \label{BS:End-undRandbedingungen}V(S,T) = \Lambda(S) \text{ und }\begin{cases}
+\text{Call:} & V^C(0,t) = 0,\; \lim\limits_{S \rightarrow \infty } {\left( V^C(S,t)-S\right)} = 0 \\\text{Put:} & V^P(0,t) = Ke^{-r\left(T-t\right)},\; \lim\limits_{S \rightarrow \infty }{V^P(S,t)} = 0  \end{cases}\end{equation}
+lösen.
+
+Die Lösungen dieses Problems sind für die Call-Option:
+\begin{equation}
+V^C(S,t) = Se^{-D_0(T-t)}\Phi\left(d_1\right) - Ke^{-r(T-t)}\Phi\left(d_2\right) \label{BS:WertCall}
+\end{equation}
+und für die Put-Option:
+\begin{equation}
+V^P(S,t) = Ke^{-r(T-t)} \Phi\left(-d_2\right)  - Se^{-D_0(T-t)} \Phi\left(-d_1\right) \label{BS:WertPut}
+\end{equation}
+mit 
+\begin{equation*}
+d_{\nicefrac{1}{2}} = \frac{ln\left(\nicefrac{S}{K}\right) +\left(\left(r-D_0\right)\pm\frac{1}{2}\sigma^2\right)\left(T-t\right)}{\sigma\sqrt{(T-t)}}
+\end{equation*}
+
+
+
+
+Eine Möglichkeit, (\ref{BS:WertCall}) und (\ref{BS:WertPut}) als Lösungen von (\ref{BS:differentialgleichungOption})-(\ref{BS:End-undRandbedingungen}) zu verifizieren, wäre, diese in die Differentialgleichung einzusetzen und die Nebenbedingungen zu kontrollieren. Wir wollen die Lösung allerdings zu Teilen selbst herleiten, da wir die folgenden Transformationen wieder in Kapitel \ref{cha:AmerikanischeOptionen} benötigen werden.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Transformation auf die Wärmeleitungsgleichung}    %%%%%%%%
+\label{cha:Transformation}                                    %%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Unser Ziel ist es, die Black-Scholes-Differentialgleichung (\ref{BS:differentialgleichungOption}) auf die eindimensionale Wärmeleitungsgleichung $u_{\tau} - u_{xx} = 0$ zu transformieren und substituieren mit $x = ln\left(\frac{S}{K}\right)$ und $\tau = \frac{\sigma^2}{2}\left(T-t\right)$ \footnote{Man beachte das der Endzeitpunkt $t=T$ zu $\tau = 0$ transformiert wurde.} zur Übersichtlichkeit in zwei Schritten:
+\begin{eqnarray}
+V(S,t) & = & \nu (x,\tau)K \label{BS:ersteTransformation} \\
+\nu (x,\tau) & = & e^{\alpha x + \beta \tau}u(x,\tau) \label{BS:zweiteTransformation}
+\end{eqnarray}
+Mit (\ref{BS:ersteTransformation}) gilt für die Ableitungen von $V$: 
+\[\begin{array}{rcl}
+V_t & = & -\frac{\sigma^2}{2}K\nu _{\tau} \\
+V_S & = & \frac{K}{S}\nu _x \\
+V_{SS} & = & \frac{K}{S^2}\left(-\nu _x + \nu _{xx}\right)
+\end{array}\]
+und aus (\ref{BS:differentialgleichungOption}) erhalten wir:
+\begin{eqnarray*}
+& -\frac{\sigma^2}{2}K\nu _{\tau} + \frac{1}{2}\sigma^2S^2\frac{K}{S^2}\left(-\nu _x + \nu _{xx}\right) + \left(r-D_0\right)S\frac{K}{S}\nu _x - rKV & = 0 \\
+\Leftrightarrow & \nu _{\tau} - \left(-\nu _{x} + \nu _{xx}\right) - \frac{2}{\sigma^2}\left(r-D_0\right)\nu _{x} - \frac{2r}{\sigma^2}\nu & = 0     
+\end{eqnarray*}
+und mit den festen Parametern $k=\frac{2r}{\sigma^2}$ und $k_0 = \frac{2\left(r-D_0\right)}{\sigma^2}$
+\begin{equation*}
+\nu _{\tau} - \nu _{xx} + \left(1-k_0\right)\nu _{x} - k\nu  = 0 
+\end{equation*}
+Wir substituieren weiter mit (\ref{BS:zweiteTransformation}) und erhalten nach Division durch $e^{\alpha x + \beta \tau}$:
+\begin{equation*}
+\beta u + u_{\tau} - \alpha^2u - 2\alpha u_{x} - u_{xx} + \left(1-k_0\right)\left(\alpha u + u_x\right) + ku = 0
+\end{equation*}
+Um jetzt die gewünschte Form $u_{\tau} - u_{xx} = 0$ zu erhalten, müssen $u$ und $u_x$ verschwinden und es entsteht ein Gleichungssystem für $\alpha$ und $\beta$:
+\begin{eqnarray*}
+\beta - \alpha^2 + \alpha\left(1-k_0\right) + k & = & 0 \\
+-2\alpha + \left(1-k_0\right) & = & 0
+\end{eqnarray*}
+mit der Lösung $\alpha = -\frac{1}{2}\left(k_0-1\right)$ und $\beta = -\frac{1}{4}\left(k_0-1\right)^2 - k$ erhalten wir die gewünschte Form $u_{\tau} - u_{xx} = 0$ mit
+\begin{equation}
+u\left(x,\tau\right) = exp\left(\frac{1}{2}\left(k_0-1\right)x + \frac{1}{4}\left(k_0-1\right)^2\tau + k\tau\right)\frac{V(S,t)}{K}
+\end{equation}
+Nach dieser Transformation muss die Anfangsbedingungen noch angepasst werden und wir erhalten
+\begin{equation}u(x,0) = e^{\left(k_0-1\right)\tfrac{x}{2}}\frac{\Lambda\left(Ke^x\right)}{K}
+\end{equation}
+beziehungsweise konkret für eine Call-Option
+\begin{eqnarray} u(x,0) & = & e^{\left(k_0-1\right)\nicefrac{x}{2}}\left(e^x - 1\right)^+ \nonumber \\
+       & = & \left(e^{\left(k_0 + 1\right)\tfrac{x}{2}} - e^{\left(k_0-1\right)\tfrac{x}{2}}\right)^+ \label{BS:AnfangswertCall}
+\end{eqnarray}
+oder die Put-Option
+\begin{eqnarray} u(x,0) & = & e^{\left(k_0-1\right)\tfrac{x}{2}}\left(1-e^x\right)^+ \nonumber \\
+       & = & \left(e^{\left(k_0-1\right)\nicefrac{x}{2}} - e^{\left(k_0 + 1\right)\nicefrac{x}{2}}\right)^+
+\end{eqnarray}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Lösung des Anfangswertproblems}                  %%%%%%%%%
+\label{cha:LoesungWaermeleitungsgleichung}                   %%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Wir wollen die Wärmeleitungsgleichung im Folgenden für den Anfangswert (\ref{BS:AnfangswertCall}) einer Call-Option lösen. Zu gegebenen Parametern $r,\,\sigma,\,T,\,D_0 \text{ und } K$ suchen wir also eine Lösung zu
+\begin{equation}
+u_{\tau} - u_{xx} = 0
+\end{equation}
+mit der Anfangsbedingung
+\begin{equation}
+u(x,0) \coloneqq u_0(x) = \left(e^{\left(k_0 + 1\right)\nicefrac{x}{2}} - e^{\left(k_0-1\right)\nicefrac{x}{2}}\right)^+
+\end{equation}
+Die allgemeine Lösung dieser Differentialgleichung lautet (\cite{WilmottDewynneHowison} S. 89-93):
+\begin{equation*}
+u(x,\tau) = \frac{1}{2\sqrt{\pi\tau}}\int _{-\infty}^{\infty} u_0(s)e^{-\nicefrac{\left(x-s\right)^2}{4\tau}}\, ds 
+\end{equation*}
+Und mit der Variablentransformation $y = \nicefrac{\left(s-x\right)}{\sqrt{2\tau}}$ erhalten wir
+\begin{eqnarray*}
+u(x,\tau) & = & \frac{1}{\sqrt{2\pi}}\int _{-\infty}^{\infty} u_0\left(x+y\sqrt{2\tau}\right)e^{\nicefrac{-y^2}{2}}dy \\
+ & = & \frac{1}{\sqrt{2\pi}}\int _{-\nicefrac{x}{\sqrt{2\tau}}}^{\infty} exp\left(\frac{1}{2}\left(k_0+1\right)\left(x+y\sqrt{2\tau}\right)\right)e^{\nicefrac{-y^2}{2}}dy \\
+ &   & - \frac{1}{\sqrt{2\pi}}\int _{-\nicefrac{x}{\sqrt{2\tau}}}^{\infty} exp\left(\frac{1}{2}\left(k_0-1\right)\left(x+y\sqrt{2\tau}\right)\right)e^{\nicefrac{-y^2}{2}}dy \\
+ & = & e^{\tfrac{1}{2}\left(k_0 + 1\right)x + \tfrac{1}{4}\left(k_0 + 1\right)^2\tau}\Phi(d_1) - e^{\tfrac{1}{2}\left(k_0 - 1\right)x + \tfrac{1}{4}\left(k_0 - 1\right)^2\tau}\Phi(d_2)
+\end{eqnarray*}
+(Siehe Anhang \ref{Anhang:UmformungenWLG} für die Umformungen der letzten Gleichheit.) Rücktransfor-mation liefert
+\begin{eqnarray*}
+V^C(S,t) & = & Kexp\left(-\frac{1}{2}\left(k_0-1\right)x - \frac{1}{4}\left(k_0-1\right)^2\tau - k\tau\right)u(x,\tau) \\
+& = & Ke^{x +\left(k_0-k\right)\tau}\Phi\left(d_1\right) - Ke^{-k\tau}\Phi\left(d_2\right) \\
+& = & Se^{-D_0(T-t)}\Phi\left(d_1\right) - Ke^{-r(T-t)}\Phi\left(d_2\right)
+\end{eqnarray*}
+
+Mithilfe der sogenannten Put-Call-Parität können wir den Wert der Put-Option verifizieren.
+\begin{satz}[Put-Call-Parität]\label{BS:PutCallParitaet}
+Für die Werte einer europäischen Call- und einer Put-Option mit denselben Parametern gilt:
+\begin{equation*}
+V^C(S,t) - V^P(S,t) = Se^{-D_0(T-t)} - Ke^{-r(T-t)}
+\end{equation*}
+\end{satz}
+\begin{proof}
+Wir betrachten die Gleichung zum Zeitpunkt $t=T$ und stellen fest, dass
+\begin{equation*}
+\left(S_T-K\right)^+ - \left(K-S_t\right)^+ = S_T - K = S_T\underbrace{e^{-D_0(T-T)}}_{=1} - K\underbrace{e^{-r(T-T)}}_{=1}
+\end{equation*}
+Damit muss die Gleichheit auch insbesondere für $t=0$ und alle $0<t<T$ gelten.
+\end{proof}
+Für den Wert der Put-Option $V^P(S,t)$ gilt also:
+\begin{eqnarray*}
+V^P(S,t) & = & Ke^{-r(T-t)} - Se^{-D_0(T-t)} + V^C(S,t) \\
+         & = & Ke^{-r(T-t)} - Se^{-D_0(T-t)} + Se^{-D_0(T-t)}\Phi\left(d_1\right) - Ke^{-r(T-t)}\Phi\left(d_2\right) \\
+         & = & Ke^{-r(T-t)}\left(1-\Phi\left(d_2\right)\right) - Se^{-D_0(T-t)}\left(1-\Phi\left(d_1\right)\right) \\
+         & = & Ke^{-r(T-t)}\Phi\left(-d_2\right) - Se^{-D_0(T-t)}\Phi\left(-d_1\right)
+\end{eqnarray*}
+und wir erhalten (\ref{BS:WertPut}). \\
+Die Randbedingungen (\ref{BS:End-undRandbedingungen}) kamen bei der Herleitung der Lösung noch nicht zum Tragen, aber dass diese erfüllt sind, lässt sich leicht kontrollieren. Für $S\to\infty$ geht $d_{\nicefrac{1}{2}} \to \infty$ und damit:
+\begin{eqnarray*}
+V^C(S,t) - S & = & Se^{-D_0(T-t)}\underbrace{\Phi\left(d_1\right)}_{\to 1} - Ke^{-r(T-t)}\underbrace{\Phi\left(d_2\right)}_{\to 1} - S  \to  0 \\
+V^P(S,t) & = & Ke^{-r(T-t)}\underbrace{\Phi\left(-d_2\right)}_{\to 0} - Se^{-D_0(T-t)}\underbrace{\Phi\left(-d_1\right)}_{\to 0} \to 0
+\end{eqnarray*}
+und für $S \to 0$ gilt $d_{\nicefrac{1}{2}} \to -\infty$ und
+\begin{eqnarray*}
+V^C(S,t) & = & Se^{-D_0(T-t)}\underbrace{\Phi\left(d_1\right)}_{\to 0} - Ke^{-r(T-t)}\underbrace{\Phi\left(d_2\right)}_{\to 0}  \to  0 \\
+V^P(S,t) & = & Ke^{-r(T-t)}\underbrace{\Phi\left(-d_2\right)}_{\to 1} - \underbrace{Se^{-D_0(T-t)}\Phi\left(-d_1\right)}_{\to 0} \to Ke^{-r(T-t)}
+\end{eqnarray*}
+Damit haben wir beide Lösungen (\ref{BS:WertCall}) und (\ref{BS:WertPut}) gezeigt.
+Eine numerische Herangehensweise an das Bewertungsproblem Europäischer Optionen wird durch das folgende Kapitel deutlich, in dem wir unter anderem die Wärmeleitungsgleichung approximativ lösen werden.
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Amerikanische Optionen}                            %%%%%%%%%%
+\label{cha:AmerikanischeOptionen}                           %%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+Das vorzeitige Ausübungsrecht des Käufer einer Amerikanischen Optionen stellt diesen vor die Entscheidung, ob er von diesem Recht Gebrauch machen möchte. Zu jedem Zeitpunkt $t$ muss er entscheiden, ob er seine Option ausübt oder nicht. Für ein festes $t$ hängt diese Entscheidung ausschließlich vom einzig verbleibenden, variablen Faktor - dem Aktienkurs $S$ - ab. Es muss also einen Wert $S_f$ geben, bis zu (im Falle eines Put) bzw. ab (für einen Call) welchem sich die Ausübung der Option lohnt. $S_f$ verändert sich aber auch mit der Zeit, sodass wir einen sogenannten \glqq freien Randwert\grqq\,$S_f(t)$ erhalten.
+\begin{satz} \label{BS:Sf}
+Für den freien Randwert $S_f(t)$ gilt:
+\[
+\begin{cases}
+S_f(t) \text{ ist monoton steigend } & \text{(Put)}\\S_f(t) \text{ ist monoton fallend } & \text{(Call)}\end{cases}
+\]
+sowie
+\[
+\begin{cases}
+S_f(t) \leq min\left\{K,\frac{rK}{D_0}\right\} & \text{(Put)}\\S_f(t) \geq max\left\{K,\frac{rK}{D_0}\right\} & \text{(Call)}\end{cases}
+\]
+\end{satz}
+\begin{proof}
+Für den Beweis wird auf \cite{Jiang} (Theorem 6.12 \& 6.13) verwiesen.
+\end{proof}
+
+ 
+Bei einer Formulierung des Bewertungsproblems als \glqq Freies Randwertproblem\grqq\, muss zusätzlich zum Optionspreis der freie Randwert $S_f(t)$ bestimmt werden. Um die direkte Bestimmung zu umgehen, wählen wir einen anderen Ansatz.
+
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Das lineare Komplementaritätsproblem}           %%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Falls der {\textit{Käufer}} seine Entscheidung auszuüben nicht zum bestmöglichen Zeitpunkt trifft, besteht für den {\textit{Verkäufer}} der Option die Möglichkeit, durch sein Portfolio (\ref{BS:portfolio}) eine Rendite zu erhalten, die den risikolosen Zinssatz $r$ übersteigt. Folglich müssen wir (\ref{BS:annahmeRisikolos}) ändern zu
+\begin{equation*}
+dY \geq rY\,dt 
+\end{equation*}
+und wir erhalten anstatt der Differential{\textit{gleichung}} (\ref{BS:differentialgleichungOption})
+\begin{equation}
+V_t + \tfrac{1}{2}\sigma^2S^2V_{SS} + \left(r-D_0\right)SV_S - rV \leq 0 \label{BS:DUGl}
+\end{equation}
+eine Differential{\textit{ungleichung}}, die wir aber nicht analytisch lösen können.
+Natürlich stellt sich die Frage, für welche Werte von $S$ das Kleiner-Zeichen und für welche die Gleichheit gilt? Bis zu dem Zeitpunkt, an dem der Verkäufer seine Option nicht ausübt, kann diese als eine Option im europäischen Sinne bewertet werden, d.h. mithilfe der Differential{\textit{gleichung}}. Falls er sie aber ausübt, da dies die bessere Entscheidung ist, so entspricht ihr Wert genau der Auszahlung, die diese liefert, also $V(S,t) = \Lambda(S)$. Wir bekommen eine Darstellung des Bewertungsproblems als Komplementaritätsproblem:
+\begin{eqnarray}
+\left(V- \Lambda(S) \right) \cdot \left( V_t + \frac{1}{2}\sigma^2S^2V_{SS} + \left(r-D_0\right)SV_S - rV \right) & =  0 \label{BS:LKP1} \\
+- \left( V_t + \frac{1}{2}\sigma^2S^2V_{SS} + \left(r-D_0\right)SV_S - rV \right) & \geq  0 \label{BS:LKP2} \\
+V- \Lambda(S) & \geq 0 \label{BS:LKP3}
+\end{eqnarray}
+Die dritte Gleichung muss gelten, da ein Kauf und sofortiges Ausüben einer Option mit $V(S,t) < \Lambda(S)$ einen sofortigen Gewinn bringen würden, was im Widerspruch zur Arbitragefreiheit stünde. Zum Lösen von (\ref{BS:LKP1})-(\ref{BS:LKP3}) müssen außerdem noch
+\begin{equation} 
+V(S,T) = \Lambda(S) \text{ und }\begin{cases}
+\text{Call:} & V(0,t) = 0,\; \lim\limits_{S \rightarrow \infty } {\left( V(S,t)-S\right)} = 0 \\\text{Put:} & V(0,t) = K,\; \lim\limits_{S \rightarrow \infty }{V(S,t)} = 0  \end{cases}\end{equation}
+als End- und Randbedinung gesetzt werden.
+\\
+\\
+Wie bereits in Kapitel \ref{cha:Transformation} schreiben wir nun die Differentialungleichung mit\\ $x = ln\left(\nicefrac{S}{K}\right)$, $\tau = \frac{\sigma^2}{2}\left(T-t\right)$, $k = \frac{2r}{\sigma^2}$ und $k_0 = \frac{2\left(r-D_0\right)}{\sigma^2}$ um zu
+\begin{equation*}
+u_{\tau} - u_{xx} \geq 0
+\end{equation*}
+Wir müssen auch (\ref{BS:LKP3}) anpassen. Mit $S = Ke^x$ und
+\begin{equation}
+f(x,\tau) \coloneqq exp\left(\frac{1}{2}\left(k_0-1\right)x + \frac{1}{4}\left(k_0-1\right)^2\tau + k\tau\right)\frac{\Lambda\left(Ke^x\right)}{K} 
+\end{equation}
+gilt
+\begin{equation}
+V- \Lambda(S) \geq 0 \quad \Leftrightarrow \quad u - f \geq 0
+\end{equation}
+und wir erhalten das transformierte Problem
+\begin{equation}
+\left(u_{\tau} - u_{xx}\right)\left(u-f\right) = 0, \quad u_{\tau} - u_{xx} \geq 0, \quad  u - f \geq 0 \label{BS:transformiertesProblem}
+\end{equation}
+Mit den ebenfalls transformierten End- und Randbedingungen:
+\begin{gather*}
+u(x,0) = f(x,0), \quad x \in \mathbb{R} \\
+\text{Put: } \lim\limits_{x \rightarrow -\infty} {\left(u(x,\tau)-f(x,\tau)\right)} = 0, \lim\limits_{x \rightarrow \infty}{u(x,\tau)} = 0 \\
+\text{Call: } \lim\limits_{x \rightarrow -\infty} {u(x,\tau)} = 0, \lim\limits_{x \rightarrow \infty} {\left(u(x,\tau)-f(x,\tau)\right)} = 0
+\end{gather*}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Diskretisierung und Lösung}                     %%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Wir werden das Problem (\ref{BS:transformiertesProblem}) für $x\in\left[-a,a\right]$ und $\tau \in \left[0,\frac{\sigma^2}{2}T\right]$ lösen.
+Dazu wählen wir für $M,\, N \in \mathbb{N}$ ein Gitter 
+\begin{equation}
+x_i = -a + ih\quad \text{und}\quad  \tau _j = js
+\end{equation}
+mit $h=\frac{2a}{N}$ und $s = \frac{\sigma^2T}{2M}$.
+Für die Ableitung $u_{\tau}$ gilt mit einer Taylorentwicklung
+\begin{equation}
+u_{\tau}(x,\tau) = \frac{1}{s}\left(u(x,\tau+s)-u(x,\tau)\right) + \mathcal{O}(s)
+\end{equation}
+Und bezüglich der Ortsableitung von $x \mapsto u(x,\tau)$ gilt:
+\begin{eqnarray*}
+u(x+h,\tau) & = & u(x,\tau) + u_x(x,\tau)h+\frac{1}{2}u_{xx}(x,\tau)h^2+\frac{1}{6}u_{xxx}(x,\tau)h^3 + \mathcal{O}\left(h^4\right) \\
+u(x-h,\tau) & = & u(x,\tau) - u_x(x,\tau)h+\frac{1}{2}u_{xx}(x,\tau)h^2-\frac{1}{6}u_{xxx}(x,\tau)h^3 + \mathcal{O}\left(h^4\right)
+\end{eqnarray*}
+Was durch Addition beider Gleichungen und Division durch $h^2$ 
+\begin{equation*}
+\frac{1}{h^2}\left(u(x+h,\tau) - 2u(x,\tau) + u(x-h,\tau)\right) = u_{xx} + \mathcal{O}\left(h^2\right)
+\end{equation*}
+als Approximation der zweiten Ableitung nach $x$ liefert. Wenn wir beide Gleichungen kombinieren und die Ortsableitung an den Stellen $\tau$ und $\tau+s$ betrachten, erhalten wir
+\begin{eqnarray}
+\frac{1}{s}\left(u(x,\tau+s)-u(x,\tau)\right) & = & \frac{1}{h^2}(u(x+h,\tau) - 2u(x,\tau) \nonumber \\
+                                              &  & + \,u(x-h,\tau)) + \mathcal{O}(s+h^2) \label{BS:aprox1} \\
+\frac{1}{s}\left(u(x,\tau+s)-u(x,\tau)\right) & = & \frac{1}{h^2}(u(x+h,\tau+s) - 2u(x,\tau+s) \nonumber \\
+                                              &  & + \,u(x-h,\tau+s)) + \mathcal{O}(s+h^2) \label{BS:aprox2}
+\end{eqnarray}
+Mit $u_i^j \coloneqq u\left(x_i,\tau _j\right)$, $\alpha = \nicefrac{s}{h^2}$ und Multiplikation von (\ref{BS:aprox1}) mit $\theta$ und (\ref{BS:aprox2}) mit $\left(1-\theta\right)$ für $0\leq\theta\leq 1$\footnote{Dieses Verfahren wird $\theta$-Verfahren genannt.} und anschließender Addition folgt
+\begin{eqnarray*}
+\left(u_i^{j+1} - u_i^j \right) & = & \alpha(1-\theta)\left(u_{i+1}^j - 2u_i^j + u_{i-1}^j\right)\\
+ & &+ \alpha\theta\left(u_{i+1}^{j+1}-2u_i^{j+1}+u_{i-1}^{j+1}\right) + \mathcal{O}\left(s+h^2\right)
+\end{eqnarray*}
+Nach Einführung von Näherungen $w_i^j$ für $u_i^j$ und sammeln der $j+1$-Terme auf der linken Seite erhalten wir mit
+\begin{multline}
+-\alpha\theta w_{i-1}^{j+1} + \left(2\alpha\theta + 1 \right)w_i^{j+1} - \alpha\theta w_{i+1}^{j+1} \nonumber \\
+= \alpha \left(1- \theta \right)w_{i-1}^j - \left(2 \alpha \left(1-\theta\right) - 1 \right) w_i^j + \alpha \left(1-\theta\right) w_{i+1}^j 
+\end{multline}
+ein Gleichungssystem $Aw^{j+1} = Bw^j + d^j$ für den unbekannten Vektor $w^{j+1}$ mit
+\begin{eqnarray*}
+w^j & = & \left(w_1^j,w_2^j, ... , w_{N-2}^j,w_{N-1}^j\right)^T \\
+A &=& \text{diag}\left(-\alpha\theta,\, 2\alpha\theta + 1,\,-\alpha\theta\right) \\
+  & \coloneqq & \begin{pmatrix}
+ 2\alpha\theta +1  & -\alpha\theta          &  0    & \cdots & 0      \\
+ -\alpha\theta  & 2\alpha\theta +1 & -\alpha\theta      &   \ddots    & \vdots \\
+ 0         & -\alpha\theta   & 2\alpha\theta +1 & \ddots &    0    \\
+ \vdots    & \ddots     & \ddots & \ddots & -\alpha\theta      \\
+ 0         & \cdots     & 0      & -\alpha\theta & 2\alpha\theta + 1 \\
+ \end{pmatrix} \\
+B &=& \text{diag}\left(\alpha\left(1-\theta\right),\,-2\alpha\left(1-\theta\right)+1,\,\alpha\left(1-\theta\right)\right)
+\end{eqnarray*}
+und
+\begin{equation*}
+d^j = \begin{pmatrix}
+         \alpha\left(1-\theta\right)u(-a,\tau _j) + \alpha\theta u(-a,\tau _{j+1}) \\
+         0 \\
+         \vdots \\
+         0 \\
+         \alpha\left(1-\theta\right)u(a,\tau _j) + \alpha\theta u(a,\tau _{j+1}) \\
+      \end{pmatrix}
+\end{equation*}
+
+Und anstelle von (\ref{BS:transformiertesProblem}) erhalten wir mit $b^j = Bw^j + d^j$ und der transformierten Nebenbedinung $u-f\geq 0 \Leftrightarrow w^{j+1} - f^{j+1} \geq 0$ für jeden Zeitschritt
+\begin{eqnarray}
+\text{Suche } w^{j+1} \in \mathbb{R}^{N-1} \text{ mit}  & & \nonumber \\
+ \left(Aw^{j+1} - b^j\right)^T\left(w^{j+1} - f^{j+1}\right)& = 0 \text{, } Aw^{j+1} - b^j \geq 0 \text{, }&  w^{j+1} - f^{j+1} \geq 0 \label{BS:transformiertesProblemLGS}
+\end{eqnarray}
+Wobei $w^0 = f^0$ und alle Ungleichungen komponentenweise zu verstehen sind. Zum Lösen dieses Problems wählen wir einen Ansatz ähnlich zu dem in \cite{BrennanSchwartz}.
+
+Da $A$ positiv definit und symmetrisch ist, wählen wir eine Cholesky-Zerlegung zum Lösen des Gleichungssystems $Aw =b$. Wir erhalten eine Darstellung von $A$ als $A = GG^T$ mit einer unteren Dreiecksmatrix $G$. Anschließend kann das Gleichungssystem 
+\begin{equation}
+G\tilde w = b \label{BS:ersteIteration}
+\end{equation}
+durch Vorwärtsiteration und danach
+\begin{equation}
+G^T w = \tilde w \label{BS:zweiteIteration}
+\end{equation}
+durch Rückwärtsiteration mit folgender Modifikation gelöst werden, weil wir an dieser Stelle die Nebenbedingung $w\geq f$ beachten werden:
+\begin{eqnarray}
+& &\text{Für }i = 1:N-1\nonumber \\
+& &\quad\text{1. Berechne }\hat w_i \text{ aus (\ref{BS:zweiteIteration})} \label{BS:dritteIteration}\\
+& &\quad\text{2. Setze }w_i = max\left\{\hat w_i, f_i\right\} \label{BS:vierteIteration}
+\end{eqnarray}
+
+Ebenso kann $A = A^T = G^TG$ eine Wahl sein, um im ersten Schritt rückwärts und danach vorwärts zu iterieren. Die Wahl der Zerlegung muss dabei an den zu bewertenden Optionstyp angepasst werden. Im Fall einer Put-Option ist $A=GG^T$ zu wählen, für die Call-Option $A=G^TG$. Das hat folgenden Grund: Durch die Variablentransformation in Abschnitt \ref{cha:Transformation} entspricht $w_1$ dem kleinsten und $w_{N-1}$ dem größten Wert der Aktie. Das bedeutet für unseren Algorithmus, dass im Fall der Put-Option die Nebenbedingung $w\geq f \; \left(\Leftrightarrow V(S,t) \geq \Lambda(S)\right)$, welche wir im zweiten Schritt beachten müssen, für kleine Werte von $S$ -  also insbesondere für $w_1$ -  beachtet werden muss, deshalb ist eine Vorwärtsiteration im zweiten Schritt zu wählen. Bei der Bewertung der Call-Option muss die Nebenbedinungung für große Werte von S - also für $w_{N-1}$ - beachtet werden und demnach eine Rückwärtsiteration im zweiten Schritt gewählt werden.
+
+Die Implementierung in Matlab ist in Anhang \ref{Anhang:ProgrammKapitel4} zu finden.
+
+
+Da wir nur minimale Änderungen vorgenommen haben, wird für eine Analyse und die Korrektheit des Algorithmus auf \cite{Jaillet} (Kapitel 5) verwiesen. Da offensichtlich $\left(Aw-b\right)^T\left(w-f\right) = 0$ und $w-f\geq 0$ gelten, wird dort für $Aw-b\geq 0$ das Gleichungssystem zunächst äquivalent umgeschrieben zu
+\begin{equation}
+\underbrace{\begin{pmatrix}
+ \tilde a_1  & 0          &  0    & \cdots & 0      \\
+ -\alpha\theta  & \tilde a_2 & 0      &   \ddots    & \vdots \\
+ 0         & -\alpha\theta   & \tilde a_3 & \ddots &    0    \\
+ \vdots    & \ddots     & \ddots & \ddots & 0      \\
+ 0         & \cdots     & 0      & -\alpha\theta & \tilde a_{N-1} \\
+ \end{pmatrix}}_{=: \tilde A}w = \tilde b
+\end{equation}
+mit $\tilde a_{N-1} = 2\alpha\theta +1$ und $\tilde a_{n-1} = 2\alpha\theta +1 - \frac{1}{\tilde a_n}$ sowie für die rechte Seite des Gleichungssystems $\tilde b_{N-1} = b_{N-1}$ und $\tilde b_{n-1} = b_{n-1} + \tilde b_n\frac{\alpha\theta}{\tilde a_{n-1}}$. Da $A$ positive Hauptminoren hat, gilt dies auch für $\tilde A$ und es folgt, dass $\tilde a_i > 0$ für alle $i \in \left\{1,...,N-1\right\}$. Sei $w$ die Lösung von (\ref{BS:ersteIteration})-(\ref{BS:vierteIteration}) für eine Put-Option. 
+
+Dann gilt mit (\ref{BS:dritteIteration}) und (\ref{BS:vierteIteration}) für $w_1 \geq \frac{\tilde b_1}{\tilde a_1} = \hat w_1$:
+\begin{eqnarray*}
+(\tilde A w -\tilde b)_1 = \tilde a_1w_1-\tilde b_1 \geq 0 & \Leftrightarrow & (Aw-b)_1 \geq 0
+\end{eqnarray*}
+und es folgt induktiv, da $w_{i+1} \geq \frac{\tilde b_{i+1} + \alpha\theta w_i}{\tilde a_{i+1}} = \hat w_{i+1}$:
+\begin{eqnarray*}
+(\tilde A w -\tilde b)_{i+1} = -\alpha\theta w_{i} + \tilde a_{i+1}w_{i+1} - \tilde b_{i+1} \geq 0 & \Leftrightarrow & (Aw-b)_{i+1} \geq 0
+\end{eqnarray*}
+Der Algorithmus ist damit korrekt.  
+
+
+
+

@@ -1,0 +1,65 @@
+%%%%%%%%%%%%% Korrektheitsbeweis %%%%%%%%%%%%%%%%%
+\subsection{Korrektheit des Algorithmus (\ref{BS:ersteIteration})-(\ref{BS:vierteIteration})}
+\label{Anhang:KorrektheitAlgo}
+
+Durch den Algorithmus ist offensichtlich sichergestellt, dass $\left(Aw-b\right)^T\left(w-f\right) = 0$ und $w \geq f$. Dass $Aw-b \geq 0$ erfüllt ist, muss dabei gesondert betrachtet werden.
+
+Für die Ableitungen von $f(x,\tau)$ gilt mit $y(x,\tau) \coloneqq \frac{1}{2}\left(k_0-1\right)x + \frac{1}{4}\left(k_0-1\right)^2\tau + k\tau$:
+\begin{eqnarray*}
+f_{\tau}(x,\tau) &=& \left(\tfrac{1}{4}\left(k_0-1\right)^2+k\right)f(x,\tau) \\
+f_x(x,\tau) & = & exp\left(y\right)\frac{1}{2}(k_0-1)\frac{\Lambda(Ke^x)}{K} + exp\left(y\right)\frac{\Lambda_{x}(Ke^x)}{K}Ke^x \\
+& = & exp\left(y\right)\left(\frac{1}{2}(k_0-1)\frac{\Lambda(Ke^x)}{K} + \Lambda_{x}(Ke^x)e^x\right) \\
+f_{xx}(x,\tau) & = & exp(y)\frac{1}{2}(k_0-1)\left(\frac{1}{2}(k_0-1)\frac{\Lambda(Ke^x)}{K} + \Lambda_{x}(Ke^x)e^x\right) \\
+ & & + exp(y)\left(\frac{1}{2}(k_0-1)\Lambda_{x}(Ke^x)e^x+\underbrace{\Lambda_{xx}(Ke^x)}_{=0}Ke^{2x}+\Lambda_{x}(Ke^x)e^x\right) \\
+ & = & exp(y)\left(k_0\Lambda_{x}(Ke^x)e^x+\frac{1}{4}(k_0-1)^2\frac{\Lambda(Ke^x)}{K}\right)
+\end{eqnarray*}
+und damit
+\begin{equation}
+f_{\tau}-f_{xx} = exp(y)\left(k\frac{\Lambda(Ke^x)}{K}-k_0\Lambda_{x}(Ke^x)e^x\right) \label{BS:ftau-fxx}
+\end{equation}
+
+Sei $w^{j+1}$ nun das Ergebnis von (\ref{BS:ersteIteration})-(\ref{BS:vierteIteration}) für eine Put-Option und $i_f(j) \in \left\{1,...,N\right\}$ (abhängig vom Zeitschritt $j$) derart, dass
+\begin{eqnarray}
+w_i^{j} &=& f(x_i,\tau _{j}), \quad \text{wenn } i \leq i_f(j) \label{BS:w-f1} \\
+w_i^{j} &>& f(x_i,\tau _{j}), \quad \text{wenn } i>i_f(j) \label{BS:w-f2}
+\end{eqnarray}
+Somit ist $Kexp(x_{i_f}) = S_f$ die Approximation des freien Randwertes. 
+
+Es gilt $\left(Aw-b\right)_i = 0$, wenn $i>i_f(j)$. Da $S_f(t)$ monoton steigend ist in $t$, ist $x_{i_f}(j)$ monoton fallend in $j$. (\ref{BS:w-f1})-(\ref{BS:w-f2}) gelten also auch in $j+1$ und wir erhalten für $i< i_f(j)$:
+\begin{eqnarray*}
+\frac{\left(Aw-b\right)_i}{s} & = & -\frac{1}{h^2}\theta (f(x_i-h,\tau _{j+1}) -2f(x_i,\tau _{j+1}) + f(x_i+h,\tau _{j+1}))+ \frac{1}{s}f(x_i,\tau _{j+1}) \\
+                    &   & -\frac{1}{h^2}(1-\theta)(f(x_i-h,\tau _{j}) -2f(x_i,\tau _{j}) + f(x_i+h,\tau _{j})) - \frac{1}{s}f(x_i,\tau _{j}) \\
+                    & = & - \underbrace{(\theta f_{xx}(x_i,\tau _{j+1}) + (1-\theta)f_{xx}(x_i, \tau _j))}_{=f_{xx}(x_i,\tau _j) + \mathcal{O}(s)}+ \mathcal{O}(h^2) + f_{\tau}(x_i,\tau _{j}) + \mathcal{O}(s)\\
+                    & = & f_{\tau}(x_i,\tau _{j})-f_{xx}(x_i,\tau _{j})+\mathcal{O}(s+h^2)
+\end{eqnarray*}
+Und damit
+\begin{equation}
+\left(Aw-b\right)_i \geq 0 \quad \Leftrightarrow \quad f_{\tau}(x_i,\tau _j) - f_{xx}(x_i,\tau _j) + \mathcal{O}(s+h^2) \geq 0 \label{BS:aequivalenz}
+\end{equation}
+Es gilt mit (\ref{BS:ftau-fxx}), sowie $S_i \coloneqq Ke^{x_i}$ und da  $\Lambda(Ke^{x_i}) > 0$:
+\begin{eqnarray*}
+(f_\tau - f_{xx})(x_i,\tau _j)+\mathcal{O}(s+h^2) &=& exp(y)\left(k\frac{\Lambda(Ke^{x_i})}{K}-k_0\Lambda_{x}(Ke^{x_i})e^{x_i}\right)+\mathcal{O}(s+h^2) \\
+                &=& exp(y)\left( k(1-e^{x_i}) + k_0e^{x_i}\right) +\mathcal{O}(s+h^2)\\
+                &=& exp(y)\left( \tfrac{2r}{\sigma^2}(1-e^{x_i})+ \tfrac{2(r-D_0)}{\sigma^2}e^{x_i}\right)+\mathcal{O}(s+h^2) \\
+                &=& exp(y)\tfrac{2}{\sigma^2}\left(r - re^{x_i} + re^{x_i} - D_0e^{x_i}\right)+\mathcal{O}(s+h^2) \\
+                &=& exp(y)\tfrac{2}{\sigma^2}\left(r - D_0\tfrac{S_i}{K}\right)+\mathcal{O}(s+h^2)            
+\end{eqnarray*}
+Und wir erhalten final für $D_0 > 0$ und hinreichend kleine $s$ und $h$: 
+\begin{equation}
+\left(Aw-b\right)_i \geq 0 \, \Leftrightarrow \, \left(r - D_0\tfrac{S_i}{K}\right)>0 \, \Leftrightarrow \, S_i < \frac{rK}{D_0}
+\end{equation}
+Und letzteres ist durch Satz \ref{BS:Sf} gegeben, da $S_i<S_f$. Falls $D_0 = 0$, gilt für die Put-Option in jedem Fall $exp(y)\tfrac{2r}{\sigma^2}>0$. Die Betrachtung von $\left(Aw-b\right)_{i_f}$ an der Stelle des approximativen freien Randwerts gestaltet sich schwieriger. Sei $i = i_f$:
+\begin{eqnarray*}
+\frac{\left(Aw-b\right)_{i}}{s} & = & -\frac{1}{h^2}\theta (f(x_{i}-h,\tau _{j+1}) -2f(x_{i},\tau _{j+1}) + w^{j+1}_{i+1}))+ \frac{1}{s}f(x_{i},\tau _{j+1}) \\
+                                  &   & -\frac{1}{h^2}(1-\theta)(f(x_{i}-h,\tau _{j}) -2f(x_{i},\tau _{j}) + w^{j}_{i+1})) - \frac{1}{s}f(x_{i},\tau _{j}) \\
+                                  & = & f_{\tau}(x_i,\tau _{j})-f_{xx}(x_i,\tau _{j})+\mathcal{O}(s+h^2) \\
+                                  &   & +\frac{1}{h^2}\left(\theta(f(x_{i}+h,\tau _{j+1}) - w^{j+1}_{i+1}) + (1-\theta)(f(x_{i}+h,\tau _j) - w^{j}_{i+1})\right)
+\end{eqnarray*}
+Und für den letzten Term müssen wir $w_{i_f+1}^j$ genauer betrachten.
+\begin{eqnarray*}
+w_{i+1}^j & = & Ke^{-r(T-t)}\Phi\left(-d_2\right) - Se^{-D_0(T-t)}\Phi\left(-d_1\right)
+\end{eqnarray*}
+
+
+
+Der Beweis für die Call-Option verläuft analog, wobei für diesen im Fall $D_0 = 0$ kein freier Randwert $S_f$ existiert (vgl. Kapitel \ref{cha:BINAmerikanische}) und $w = A^{-1}b$.
