@@ -1,47 +1,18 @@
-% Seitenstil
+% Meta-Informationen -----------------------------------------------
+%    Angaben zur Bachelorarbei, wie z.B. Art, Titel, 
+%    Autor, Hochschule etc.
+% ---------------------------------------------------------------------
 
-% Zeilenabstand 1,5 Zeilen -----------------------------------------------------
-\onehalfspacing
 
-% Seitenränder -----------------------------------------------------------------
-\setlength{\topskip}{\ht\strutbox} % behebt Warnung von geometry
-\geometry{paper=a4paper,left=40mm,right=20mm,top=20mm}
-
-% Kopf- und Fußzeilen ----------------------------------------------------------
-\pagestyle{scrheadings}
-% Kopf- und Fußzeile auch auf Kapitelanfangsseiten
-\renewcommand*{\chapterpagestyle}{scrheadings} 
-% Schriftform der Kopfzeile
-\renewcommand{\headfont}{\normalfont}
-
-% Kopfzeile
-\ihead{\normal{\textsc{\titel}}\\ \small{\untertitel} \\[1mm] \textit{\headmark}}
-\chead{}
-\ohead{\pagemark}
-\setlength{\headheight}{21mm} % Höhe der Kopfzeile
-% Kopfzeile über den Text hinaus verbreitern
-%\setheadwidth[0pt]{textwithmarginpar} 
-\setheadsepline[text]{0.4pt} % Trennlinie unter Kopfzeile
-
-% Fußzeile
-\ifoot{\copyright\ \autor}
-\cfoot{}
-\ofoot{\pagemark}
-\addtolength{\footskip}{-1cm} % Fußzeile 1 cm höher setzen
-
-% sonstige typographische Einstellungen ----------------------------------------
-
-% erzeugt ein wenig mehr Platz hinter einem Punkt
-\frenchspacing 
-
-% Schusterjungen und Hurenkinder vermeiden
-\clubpenalty = 10000
-\widowpenalty = 10000 
-\displaywidowpenalty = 10000
-
-% Quellcode-Ausgabe formatieren
-\lstset{numbers=left, numberstyle=\tiny, numbersep=5pt, breaklines=true}
-\lstset{emph={square}, emphstyle=\color{red}, emph={[2]root,base}, emphstyle={[2]\color{blue}}}
-
-% Fußnoten fortlaufend durchnummerieren
-\counterwithout{footnote}{chapter}
+\newcommand{\titel}{Bewertung von Europ\"aischen und Amerikanischen Optionen}
+\newcommand{\untertitel}{im Binomial- und Black-Scholes-Modell}
+\newcommand{\art}{Bachelorarbeit}
+\newcommand{\fachgebiet}{Mathematik und Statistik}
+\newcommand{\studiengang}{Mathematische Finanz\"okonomie}
+\newcommand{\autor}{Lucas Burger}
+% \newcommand{\matrikelnr}{01/843636}
+% \newcommand{\betreuer}{Prof. Dr. Johannes Schropp}
+\newcommand{\jahr}{2016}
+\newcommand{\ort}{Konstanz}
+\newcommand{\logo}{Logo_Uni_Konstanz.jpg}
+\newcommand{\wasserzeichen}{Wasserzeichen.jpg}
